@@ -1,7 +1,0 @@
-{
-	"apiToken": "apiToken",
-	"zoneID": "zoneID",
-	"recordName": "test.example.com",
-	"checkPeriod": 60,
-	"ipAPI": "ipip.net"
-}
