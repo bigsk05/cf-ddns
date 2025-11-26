@@ -30,6 +30,8 @@ func Checker() {
 v4branch:
 	for {
 		switch config.C.GetString("api.v4") {
+		case "":
+			break v4branch
 		case "ipip.net":
 			currentV4, err = getPublicIPv4ByIPIPNET()
 			if err != nil {
@@ -65,6 +67,8 @@ v4branch:
 v6branch:
 	for {
 		switch config.C.GetString("api.v6") {
+		case "":
+			break v6branch
 		case "gh.ink":
 			currentV6, err = getPublicIPv6ByGhink()
 			if err != nil {

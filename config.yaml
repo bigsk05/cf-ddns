@@ -3,10 +3,11 @@ cf:
   zone: "zoneID"
 api:
   # "ipip.net", "gh.ink" or customize API
-  # "ipip.net" only support IPv4
-  # Only support Raw API that response a single IP address
+  # "ipip.net" only supports IPv4
+  # Only support Raw API that responds to a single IP address
   # Like response 200 "1.1.1.1"
   # Customize API address should be with protocol
+  # Leave option blank to disable it
   v4: "ipip.net"
   v6: "https://example.com"
 record:
