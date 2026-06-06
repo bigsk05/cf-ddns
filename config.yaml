@@ -2,11 +2,10 @@ cf:
   token: "apiToken"
   zone: "zoneID"
 api:
-  # "ipip.net", "gh.ink" or customize API
-  # "ipip.net" only supports IPv4
+  # "ipip.net", "gh.ink" or customise API
   # Only support Raw API that responds to a single IP address
   # Like response 200 "1.1.1.1"
-  # Customize API address should be with protocol
+  # Customise API address should be with protocol
   # Leave option blank to disable it
   v4: "ipip.net"
   v6: "https://example.com"
@@ -15,8 +14,10 @@ record:
   # In second
   period: 60
 log:
-  file: "logs/app.log"
-  maxSize: 100
-  maxBackups: 10
-  maxAge: 30
+  file:
+    all: "logs/app.log"
+    err: "logs/err.log"
+  max_size: 5
+  max_backups: 100
+  max_age: 30
   compress: true

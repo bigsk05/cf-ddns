@@ -24,7 +24,7 @@ func updateDNSIPv4(api *cloudflare.API, zoneID string, recordName string, curren
 			Name:    recordName,
 			Content: currentIP,
 			TTL:     60,
-			Proxied: cloudflare.BoolPtr(false),
+			Proxied: new(false),
 		})
 	} else {
 		_, err = api.UpdateDNSRecord(ctx, cloudflare.ZoneIdentifier(zoneID), cloudflare.UpdateDNSRecordParams{
@@ -49,7 +49,7 @@ func updateDNSIPv6(api *cloudflare.API, zoneID string, recordName string, curren
 		Name: recordName,
 	})
 	if err != nil {
-		return errors.New("failed to list A DNS records")
+		return errors.New("failed to list AAAA DNS records")
 	}
 
 	if len(records) == 0 {
@@ -58,7 +58,7 @@ func updateDNSIPv6(api *cloudflare.API, zoneID string, recordName string, curren
 			Name:    recordName,
 			Content: currentIP,
 			TTL:     60,
-			Proxied: cloudflare.BoolPtr(false),
+			Proxied: new(false),
 		})
 	} else {
 		_, err = api.UpdateDNSRecord(ctx, cloudflare.ZoneIdentifier(zoneID), cloudflare.UpdateDNSRecordParams{
@@ -70,7 +70,7 @@ func updateDNSIPv6(api *cloudflare.API, zoneID string, recordName string, curren
 	}
 
 	if err != nil {
-		return errors.New("failed to update A DNS records")
+		return errors.New("failed to update AAAA DNS records")
 	}
 	return nil
 }

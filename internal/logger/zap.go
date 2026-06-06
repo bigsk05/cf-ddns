@@ -1,10 +1,12 @@
 package logger
 
 import (
+	"io"
 	"os"
 
 	"cf-ddns/internal/config"
 
+	"github.com/goccy/go-json"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -12,7 +14,7 @@ import (
 
 var L *zap.Logger
 
-func InitLogger() {
+func Init() {
 	// Set log level
 	var level zapcore.Level
 	if config.Debug {
@@ -35,6 +37,11 @@ func InitLogger() {
 		EncodeTime:     zapcore.ISO8601TimeEncoder,
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
+		NewReflectedEncoder: func(w io.Writer) zapcore.ReflectedEncoder {
+			enc := json.NewEncoder(w)
+			enc.SetEscapeHTML(false)
+			return enc
+		},
 	}
 
 	cores := make([]zapcore.Core, 0)
@@ -47,14 +54,14 @@ func InitLogger() {
 	cores = append(cores, stdoutCore)
 
 	// Output to log file
-	logFile := config.C.GetString("log.file")
-	if logFile != "" {
+	if config.Get().Log.File.All != "" {
+		// Normal log output
 		fileWriter := &lumberjack.Logger{
-			Filename:   logFile,
-			MaxSize:    config.C.GetInt("log.maxSize"),
-			MaxBackups: config.C.GetInt("log.maxBackups"),
-			MaxAge:     config.C.GetInt("log.maxAge"),
-			Compress:   config.C.GetBool("log.compress"),
+			Filename:   config.Get().Log.File.All,
+			MaxSize:    config.Get().Log.MaxSize,
+			MaxBackups: config.Get().Log.MaxBackups,
+			MaxAge:     config.Get().Log.MaxAge,
+			Compress:   config.Get().Log.Compress,
 			LocalTime:  true,
 		}
 
@@ -66,16 +73,33 @@ func InitLogger() {
 		cores = append(cores, fileCore)
 	}
 
+	if config.Get().Log.File.Err != "" {
+		// Error log output
+		errWriter := &lumberjack.Logger{
+			Filename:   config.Get().Log.File.Err,
+			MaxSize:    config.Get().Log.MaxSize,
+			MaxBackups: config.Get().Log.MaxBackups,
+			MaxAge:     config.Get().Log.MaxAge,
+			Compress:   config.Get().Log.Compress,
+			LocalTime:  true,
+		}
+		errCore := zapcore.NewCore(
+			zapcore.NewJSONEncoder(encoderConfig),
+			zapcore.AddSync(errWriter),
+			zapcore.WarnLevel, // Only record Warn、Error、Fatal、Panic
+		)
+		cores = append(cores, errCore)
+	}
+
 	// Create zap core
 	core := zapcore.NewTee(cores...)
 
 	// Create zap logger
 	L = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))
 
-	// Add config change notifier
-	config.OnChange = append(config.OnChange, func() {
-		L.Info("Config file changed")
-	})
+	L.Debug("logger initialized")
+}
 
-	L.Debug("Logger initialized")
+func Cleanup() {
+	_ = L.Sync()
 }

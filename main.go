@@ -5,20 +5,24 @@ import (
 	"cf-ddns/internal/config"
 	"cf-ddns/internal/cron"
 	"cf-ddns/internal/logger"
+
+	"go.gh.ink/timex"
 )
 
 func main() {
 	// Load public config
-	config.LoadStatic()
+	config.Init()
+	defer config.Cleanup()
 
 	// Init logger
-	logger.InitLogger()
+	logger.Init()
+	defer logger.Cleanup()
 
 	// Init checker
-	checker.InitChecker()
+	checker.Init()
 
 	// Init cron
-	cron.InitCron()
+	cron.Init()
 
-	select {}
+	timex.Sleep(timex.NewPosInfDuration())
 }
